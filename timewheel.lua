@@ -1,8 +1,3 @@
---[[
-  mgit bundle -M timewheel -z -o timewheel.exe
-   -a "cairo pixman png z freetype"
-   -m "winapi winapi/* cairo* cplayer cplayer/* timewheel glue box2d path2d_* pp* color codedit_str utf8"
-]]
 local player = require'cplayer'
 local point = require'path2d_point'
 local arc = require'path2d_arc'
@@ -24,6 +19,7 @@ local max_deg = 360
 local years = 1
 
 player.show_magnifier = false
+player.continuous_rendering = false
 
 function player:on_render(cr)
 
@@ -68,13 +64,12 @@ function player:on_render(cr)
 		end
 
 	self:text(10, 220, [[
-HELP:
-
 Scroll Wheel                    : Zoom
-Left-Click Drag                 : Rotate
+Click & Drag                    : Rotate
   + Hold Space                  : Move
 Hold Shift + Mouse Move Up/Down : Fine Zoom
 Hold Ctrl  + Mouse Move         : Pan
+Left/Right Arrow Keys           : Rotate
 ]], 'Courier New, 14, bold')
 
 	--math utils --------------------------------------------------------------
@@ -267,11 +262,14 @@ Hold Ctrl  + Mouse Move         : Pan
 		mx, my = mouse()
 	end
 
-	local function rotate_do()
-		local a0 = point.point_angle(mx, my, cx, cy)
-		local mx1, my1 = mouse()
-		local a1 = point.point_angle(mx1, my1, cx, cy)
-		local rotation = math.rad(a1 - a0)
+	local function rotate_do(w)
+		if not w then
+			local a0 = point.point_angle(mx, my, cx, cy)
+			local mx1, my1 = mouse()
+			local a1 = point.point_angle(mx1, my1, cx, cy)
+			w = a1 - a0
+		end
+		local rotation = math.rad(w)
 		mt1:reset():rotate_around(cx, cy, rotation)
 	end
 
@@ -283,10 +281,17 @@ Hold Ctrl  + Mouse Move         : Pan
 	if not self.active then
 
 		if not zoom and not pan and not rotate then
+
 			if self.wheel_delta ~= 0 then
 				zoom_start(mouse())
 				zoom_do(1, mx, my - self.wheel_delta * 10)
 				zoom_end()
+			elseif self.key == 'right' or self.key == 'left' then
+				rotate_start()
+				rotate_do(5 *
+					(self.key == 'right' and 1 or -1)
+					/ mt_scale)
+				rotate_end()
 			elseif self.key == 'shift' then
 				zoom_start(mouse())
 			elseif self.key == 'ctrl' then
@@ -298,6 +303,7 @@ Hold Ctrl  + Mouse Move         : Pan
 					rotate = true
 				end
 			end
+
 			if pan then
 				pan_start(pan)
 			elseif rotate then
