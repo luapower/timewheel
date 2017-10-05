@@ -223,6 +223,10 @@ Left/Right Arrow Keys           : Rotate
 
 	local function zoom_do(d, mx1, my1)
 		local scale = clamp(1 + (my - my1) / 20 * d, 0.2, 100)
+		--TODO: we limit scale because of cairo's toy text API bug
+		if mt_scale * scale >= 800 then
+			return
+		end
 		local tx = mx * (scale - 1)
 		local ty = my * (scale - 1)
 		mt1:reset():translate(-tx, -ty):scale(scale)
@@ -486,22 +490,31 @@ Left/Right Arrow Keys           : Rotate
 		if t >= start_time then
 			tick(t, -20, 6, 0.5 / sf, '#fff')
 		end
-		--text(center(t, d), -30, week, 'Arial,11', '#fff')
+		--text(center(t, d), -30, i, 'Arial,11', '#fff')
 	end
+
+	--today's time
+	local d = os.date'*t'
+	local today = os.time{year = d.year, month = d.month, day = d.day, hour = 0, sec = 0}
+	local this_hour = os.time{year = d.year, month = d.month, day = d.day, hour = d.hour, sec = 0}
 
 	--days
 	local wd_names = {'L', 'm', 'M', 'J', 'V', 'S', 'D'}
 	for t, d, i, is_last in day_times(start_time, total_interval) do
 		tick(t, -20, 3, 0.2 / sf, '#fff')
 		if mt_scale >= 8 and in_clip(t, d, -20, 2) then
-			text(center(t, d), -20, wd_names[i], 'Arial,2', '#fff')
-			if mt_scale >= 100 then
+			local c = t == today and '#f00' or '#fff'
+			text(center(t, d), -20, wd_names[i], 'Arial,2', c)
+			if mt_scale >= 60 then
 				for i=0,23 do
 					local d = 3600
 					local t = t + i*d
 					tick(t, -18, 0.2, 0.5 / sf, '#fff')
-					local s = mod(i+1, 12)..(i >= 12 and 'pm' or 'am')
-					text(t + d/2, -18, s, 'Arial,0.05', '#fff')
+					if mt_scale >= 140 then
+						local c = t == this_hour and '#f00' or '#fff'
+						local s = mod(i, 12)..(i >= 12 and 'pm' or 'am')
+						text(t, -18, s, 'Arial,0.05', c)
+					end
 				end
 			end
 		end
