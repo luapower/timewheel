@@ -6,6 +6,8 @@ local pp = require'pp'
 local cairo = require'cairo'
 local color = require'color'
 
+if ... == 'timewheel' then return end --required as a module
+
 --pan & zoom state
 local mt_scale = 2
 local mt = cairo.matrix():scale(mt_scale)
