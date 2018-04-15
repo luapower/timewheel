@@ -178,8 +178,8 @@ Left/Right Arrow Keys           : Rotate
 
 	local r = 280
 
-	local w = self.panel.client_w
-	local h = self.panel.client_h
+	local w = self.w
+	local h = self.h
 	local cx = (w - r - 100)
 	local cy = h
 	self.init_mt = self.init_mt or mt:copy():invert()
@@ -290,7 +290,7 @@ Left/Right Arrow Keys           : Rotate
 
 			if self.wheel_delta ~= 0 then
 				zoom_start(mouse())
-				zoom_do(1, mx, my - self.wheel_delta * 10)
+				zoom_do(1, mx, my - self.wheel_delta * 120)
 				zoom_end()
 			elseif self.key == 'right' or self.key == 'left' then
 				rotate_start()
