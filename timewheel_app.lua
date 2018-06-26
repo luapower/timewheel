@@ -290,7 +290,7 @@ Left/Right Arrow Keys           : Rotate
 
 			if self.wheel_delta ~= 0 then
 				zoom_start(mouse())
-				zoom_do(1, mx, my - self.wheel_delta * 120)
+				zoom_do(1, mx, my - self.wheel_delta)
 				zoom_end()
 			elseif self.key == 'right' or self.key == 'left' then
 				rotate_start()
@@ -450,7 +450,7 @@ Left/Right Arrow Keys           : Rotate
 	--years
 	local c = color'#888'
 	for t, d, i, is_last in year_times(start_time, total_interval) do
-		local cs = c:tostring()
+		local cs = tostring(c)
 		tick(t, -10, 40, 2, cs)
 		if is_last then
 			tick(t + d, -10, 40, 2, cs)
@@ -463,7 +463,7 @@ Left/Right Arrow Keys           : Rotate
 	--quarters
 	local c = color'#888'
 	for t, d, i in quarter_times(start_time, total_interval) do
-		local cs = c:tostring()
+		local cs = tostring(c)
 		arc(t, d, -120, 6, cs)
 		tick(t, -100, -30, 1, cs)
 		text(center(t, d), -140, 'Q '..mod(i, 4), 'Arial,16', cs)
@@ -481,7 +481,7 @@ Left/Right Arrow Keys           : Rotate
 	for t, d, i in season_times(start_time, total_interval) do
 		i = mod(i, 4)
 		local c = season_colors[i]
-		arc(t, d, 20, 6, c:tostring())
+		arc(t, d, 20, 6, tostring(c))
 		text(center(t, d), 30, season_names[i], 'Arial,12', '#fff')
 	end
 
